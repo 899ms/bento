@@ -27,6 +27,14 @@ pre-1.0.
   know. The underline only appears while editing, never in the show, in print
   or in the saved file. Pasting or editing a formula no longer drops the
   backslash from `\_`. Reported in #540.
+- **Embedded fonts show up after "Replace from JSON".** Rahul Ravikumar (#516)
+  found that a deck loaded through Replace from JSON could keep showing
+  fallback fonts instead of the ones embedded in it (every time, for a font
+  used by code snippets) and fixed it by refreshing the fonts whenever the
+  document changes. Building on that, a font you remove from the deck now
+  disappears, undo and redo bring fonts back and forth, replacing a font's
+  file takes effect, and ordinary edits no longer re-apply every embedded
+  font.
 
 ## [1.2.3] — 2026-09-19
 
