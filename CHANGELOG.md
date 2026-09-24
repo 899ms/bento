@@ -11,6 +11,43 @@ pre-1.0.
 
 ## [Unreleased]
 
+- **Maths covers the rest of LaTeX, and lines up.** After the fix for #540,
+  a check against the old engine's whole vocabulary found about a hundred
+  more commonly typed commands that still showed as raw text: long and
+  vertical arrows (`\Longrightarrow`, `\Uparrow`, `\rightleftharpoons`),
+  `\odot`, `\preceq`, `\triangleq`, `\varpi`, `\imath`, `\oiint`, `\coth`,
+  `\argmax`, card suits, `\pounds` and many more. Every one renders now, along
+  with `\hphantom`, `\smash`, `\llap`, `\sideset`, starred matrices,
+  `rcases`/`dcases`, `\fbox`, `\colorbox`, `\bcancel`, `\large`/`\small`,
+  `\bold`, `\Bbb` and `\textsc`, symbols typed directly (`∈`, `≤`), and
+  line breaks written straight into a display formula (`a = b \\ c = d`,
+  which chat assistants produce), now stacked on separate lines.
+  - **`aligned` now aligns.** The equals signs in an `aligned` block line up
+    and `cases` columns sit to the left, the way TeX sets them. Until now
+    every column was centred. **Existing decks that use `aligned` or `cases`
+    change alignment when they update to this version.**
+  - **One unknown command no longer loses the formula.** The rest renders
+    and the unknown command shows as its own name in red, so an audience sees
+    the maths, not a line of raw LaTeX. In the editor the formula still gets
+    the "Not rendered" hint naming the command.
+  - **Your own macros:** `\newcommand`, `\renewcommand`, `\def` and
+    `\DeclareMathOperator` work inside the formula that defines them.
+  - **Physics and chemistry:** the physics package (`\dv`, `\pdv`, `\abs`,
+    `\norm`, `\bra`, `\ket`, `\qty`, `\grad` and the rest) and mhchem's
+    `\ce{…}` and `\pu{…}` (formulas, charges, states, hydrates, reaction arrows
+    with labels, units, dashed bonds).
+  - **Tables in formulas get their lines back.** Since 1.2.0 an `array`'s
+    column bars (`|`, dashed `:`, double `||`) and its `\hline` /
+    `\hdashline` rules were silently dropped; they are drawn again, exactly
+    as before 1.2.0.
+  - **Commutative diagrams** (`\begin{CD} A @>f>> B … \end{CD}`), long
+    division (`\longdiv`), the actuarial angle (`\angl`) and `\reflectbox`.
+    Together with the above, every command and environment the pre-1.2.0
+    engine knew now renders.
+  - **Labelled arrows stretch to their label.** In Chrome, `\xrightarrow`,
+    `\xleftrightarrow`, `\xmapsto`, `\xlongequal`, the equilibrium arrows and
+    `\overrightarrow` used to keep their natural length under a long label or
+    a long base; they now span it. Screen readers still hear the arrow.
 - **A deck with lots of small images can be shared live.** Sharing sends big
   pictures separately from the document, but only ones over about 64 KB — so a
   deck with many smaller images (a wall of icons, say) could still add up to

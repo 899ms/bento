@@ -7350,3 +7350,70 @@ boot-time trust decision is taken from one. Still open, for the follow-up:
 the `bento-member-<docId>` device signing key and plaintext auto-save content
 (a per-file key in `#bento-doc`); and #519's persistent file-handle grant,
 which for the same reason is safe only under a real origin.
+
+## 2026-09-24 — Maths: TeX's column alignment, partial rendering, and coverage held to Temml's whole vocabulary
+
+Issue #540 found 57 everyday commands that 1.2.0's engine dropped to raw
+text; #550 fixed the reported ones. The follow-up measured the rest and
+settled four things that reverse or extend the 2026-09-15 entry.
+
+**Columns align the way TeX aligns them — reversing 2026-09-15.** `aligned`
+is right|left so the relations line up, `eqnarray` right|centre|left, the
+`cases` family left, a starred matrix takes its `[l|c|r]`, an `array` its
+column spec. The centred look was kept so no deck would move; the maintainer
+reversed it after seeing `&=` fail to line up — to the person who typed it,
+that is a bug, not a style. Existing decks with `aligned`/`cases` DO change
+on update. How it is spelled matters and was measured in Chrome 153: an
+`mtd` ignores `text-align:left|right|center|end` (all lay out at the start
+edge) and honours only the `-webkit-` keywords, so cells carry
+`text-align:-webkit-left|right` plus the `columnalign` attribute for engines
+that read that.
+
+**One unknown command no longer loses the formula.** Slides render LENIENT
+(`renderMath(…, { lenient: true })`): a command the engine does not know is
+drawn as its own name in a warning colour and the rest of the formula
+renders. Malformed input (an unclosed brace, a stray `\end`) still leaves the
+source as typed. The editor's "Not rendered: \foo" hint still marks it. The
+rigs render STRICT, so they measure what the engine actually knows.
+
+**Coverage is measured against Temml's whole vocabulary, with a floor.**
+`scripts/maths-freeze-coverage.ts` froze one minimal form of every command
+and environment named in Temml 0.13.3's source (1,237) with Temml's tree;
+`scripts/test-maths-coverage.ts` requires that no covered command falls back,
+that the rendering and tree-identical counts stay at or above the recorded
+floor (raised with `--update`), and that every formula in
+`scripts/fixtures/maths-common.json` (the commonly typed tier) renders. A
+fixed sample of 91 could not see what was not in it — that is how #540 got
+through. At this entry: all 1,237 render, 1,122 tree-identical or
+deliberately drawn — including amscd's `CD` diagrams (a small parser for
+`@>a>b>`, `@VaVbV`, `@=`, `@|`, `@.`), `\longdiv`, `\angl`, `\reflectbox`,
+the coherence relations and mhchem's drawn bonds. Engine 20.8 KB compressed
+against Temml's 59.2 KB measured the same way (esbuild minify + deflate).
+
+**Macros and the two packages.** `\newcommand`/`\renewcommand`/
+`\providecommand`/`\def`/`\let`/`\DeclareMathOperator` work within ONE
+formula (a deck-wide preamble would be a format change and is not made
+here). The physics package is built-in macros over what the parser knows;
+mhchem's `\ce`/`\pu` are a small rewriter to LaTeX (formulas, charges,
+states, hydrates, arrows with labels, bonds, units) — not Temml's 1,500-line
+state machine, and anything it does not recognise passes through as upright
+text.
+
+**Arrows Chrome will not stretch are drawn in SVG.** Measured in Chrome 153
+on macOS with every maths font: `← ⇐ ⇒ ⇔ ↤ ↩ ↪` and the harpoons stretch to a
+label; `→ ↦ ↔ ↠ ↞ = ⇌ ⇋ ⇄` never do, whatever the operator form, font or
+script element — so `\xrightarrow{a long label}` drew a short arrow under a
+long label (in Temml's output too). Two glyph workarounds were built and
+rejected on sight: a mirrored stretched `←` loses its arrowhead, and a
+stretched `⇀` with a `⇁` laid over its end misplaces the barb. What works:
+`\x…arrow` becomes a one-column `mtable` — over label, arrow, under label,
+each label row balanced by a phantom of the other so the arrow row sits on
+the axis — and the arrow is an inline `<svg>` absolutely positioned in a
+relatively positioned `mtd` (`min-width:3.5em`), lines at 0–100%, heads in
+nested svgs pinned at 0%/100% so they never distort, sizes in em.
+`\overrightarrow` and kin pad the base and draw over the padding, so the
+baseline never moves. `role="img"` + `aria-label` keep the written arrow for
+assistive tech. The arrows Chrome does stretch stay font glyphs. The tree
+rigs treat a drawn arrow as a deliberate difference: named in
+`test-maths-lite.ts`, counted with the identical ones in the coverage floor.
+Cost: +966 B of shell.
