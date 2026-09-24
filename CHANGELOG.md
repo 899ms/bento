@@ -11,6 +11,13 @@ pre-1.0.
 
 ## [Unreleased]
 
+- **A deck with lots of small images can be shared live.** Sharing sends big
+  pictures separately from the document, but only ones over about 64 KB — so a
+  deck with many smaller images (a wall of icons, say) could still add up to
+  more than a live session's frame could carry. Those now travel separately
+  too, largest first, once the pictures kept in the document pass a
+  quarter-megabyte together.
+
 - **A document in Downloads or Documents remembers where it lives.** Chrome
   will not let any app hold a standing grant to those folders, so a deck kept
   there used to show the full save dialog on every reopen. Bento now remembers
